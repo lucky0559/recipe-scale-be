@@ -1,0 +1,28 @@
+{
+  "name": "recipe-scale-be",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/lucky0559/recipe-scale-be#readme",
+  "bugs": {
+    "url": "https://github.com/lucky0559/recipe-scale-be/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucky0559/recipe-scale-be.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --env-file=.env server",
+    "dev": "node --watch --env-file=.env server"
+  },
+  "dependencies": {
+    "colors": "^1.4.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.14"
+  }
+}
