@@ -1,7 +1,8 @@
 import express from "express";
+import mongoose from "mongoose";
 import errorHandler from "./middleware/error.js";
 import notFound from "./middleware/not-found.js";
-import recipes from "./routes/recipes.js";
+import foods from "./routes/foods.js";
 
 const app = express();
 
@@ -15,10 +16,20 @@ app.use(
 );
 
 // Routes
-app.use("/api/recipes", recipes);
+app.use("/api/foods", foods);
 
 // Middleware
 app.use(notFound);
 app.use(errorHandler);
 
-app.listen(8000, () => console.log(`Server running on port ${port}`));
+mongoose
+  .connect(
+    "mongodb+srv://recipe-scale-admin:AFZ7R8hYtl3gtdul@cluster0.okla4gk.mongodb.net/Recipe-Scale?appName=Cluster0"
+  )
+  .then(() => {
+    app.listen(8000, () => console.log(`Server running on port ${port}`));
+    console.log("CONNECTED TO DB");
+  })
+  .catch(() => {
+    console.log("CONNECTION FAILED");
+  });
