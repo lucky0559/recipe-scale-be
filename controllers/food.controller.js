@@ -2,31 +2,22 @@ import { Food } from "../models/food.model.js";
 
 export const getFoods = async (req, res, next) => {
   try {
-    const pageSize = Number(req.query.pageSize);
-    const pageNumber = Number(req.query.pageNumber);
+    const { search } = req.query;
 
-    let query = Food.find();
+    let filter = {};
 
-    if (pageSize) {
-      query.limit(pageSize);
-
-      if (pageNumber) {
-        query.skip((pageNumber - 1) * pageSize);
-      }
+    if (search) {
+      filter.name = {
+        $regex: search,
+        $options: "i"
+      };
     }
 
-    const foods = await query;
+    const foods = await Food.find(filter);
 
     res.status(200).json(foods);
   } catch (error) {
     next(error);
-  }
-
-  const foods = Food.find().sort({ createdAt: -1 }).limit(limit);
-  if (!isNaN(limit) && limit > 0) {
-    res.status(200).json(foods.slice(0, limit));
-  } else {
-    res.status(200).json(foods);
   }
 };
 
