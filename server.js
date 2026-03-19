@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import errorHandler from "./middleware/error.js";
 import notFound from "./middleware/not-found.js";
+import auth from "./routes/auth.js";
 import foods from "./routes/foods.js";
 
 const app = express();
@@ -17,6 +18,7 @@ app.use(
 
 // Routes
 app.use("/api/foods", foods);
+app.use("/api/auth", auth);
 
 // Middleware
 app.use(notFound);
