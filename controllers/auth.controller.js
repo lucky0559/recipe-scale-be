@@ -140,6 +140,7 @@ export const googleSignin = async (req, res, next) => {
 
     res.json({ token, user });
   } catch (error) {
+    console.error("GOOGLE AUTH ERROR:", error);
     next(error);
   }
 };
