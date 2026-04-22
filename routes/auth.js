@@ -1,6 +1,7 @@
 import express from "express";
 import {
   getCurrentUser,
+  googleSignin,
   login,
   logout,
   refresh,
@@ -15,5 +16,6 @@ router.post("/login", login);
 router.post("/refresh", refresh);
 router.post("/logout", logout);
 router.get("/me", protect, getCurrentUser);
+router.post("/google", googleSignin);
 
 export default router;

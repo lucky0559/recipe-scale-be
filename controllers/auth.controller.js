@@ -1,16 +1,17 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { verifyGoogleToken } from "../lib/auth.js";
 import { User } from "../models/user.model.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 
 export const register = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      email,
+      username,
       password: hashed
     });
 
@@ -22,9 +23,9 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
 
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
@@ -103,6 +104,34 @@ export const getCurrentUser = async (req, res, next) => {
     const user = await User.findById(req.user.id).select("-password");
 
     res.json(user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleSignin = async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+
+    const payload = await verifyGoogleToken(idToken);
+
+    const { email, name, sub } = payload;
+
+    // find or create user in MongoDB
+    let user = await User.findOne({ googleId: sub });
+
+    if (!user) {
+      user = await User.create({
+        googleId: sub,
+        email,
+        name
+      });
+    }
+
+    // generate your own JWT/session
+    const token = generateJWT(user);
+
+    res.json({ token, user });
   } catch (error) {
     next(error);
   }
