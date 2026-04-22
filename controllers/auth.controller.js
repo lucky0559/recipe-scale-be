@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
+import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
-import { verifyGoogleToken } from "../lib/auth.js";
 import { User } from "../models/user.model.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 
@@ -111,11 +111,17 @@ export const getCurrentUser = async (req, res, next) => {
 
 export const googleSignin = async (req, res, next) => {
   try {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
     const { idToken } = req.body;
 
-    const payload = await verifyGoogleToken(idToken);
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
 
-    const { email, name, sub } = payload;
+    const payload = ticket.getPayload();
+
+    const { email, name, sub, picture } = payload;
 
     // find or create user in MongoDB
     let user = await User.findOne({ googleId: sub });
@@ -124,7 +130,8 @@ export const googleSignin = async (req, res, next) => {
       user = await User.create({
         googleId: sub,
         email,
-        name
+        name,
+        avatar: picture
       });
     }
 
