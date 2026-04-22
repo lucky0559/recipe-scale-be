@@ -115,7 +115,7 @@ export const googleSignin = async (req, res, next) => {
     const { idToken } = req.body;
 
     const ticket = await client.verifyIdToken({
-      idToken,
+      idToken: idToken,
       audience: process.env.GOOGLE_CLIENT_ID
     });
 
