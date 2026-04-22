@@ -112,7 +112,9 @@ export const getCurrentUser = async (req, res, next) => {
 export const googleSignin = async (req, res, next) => {
   try {
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
     const { idToken } = req.body;
+    console.log("IDTOKEN: ", idToken);
 
     const ticket = await client.verifyIdToken({
       idToken: idToken,
