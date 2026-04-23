@@ -54,32 +54,26 @@ export const login = async (req, res, next) => {
 };
 
 export const refresh = async (req, res, next) => {
+  const { refreshToken } = req.body;
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: "No refresh token" });
+  }
+
   try {
-    const { refreshToken } = req.body;
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
 
-    if (!refreshToken) {
-      return res.status(401).json({ message: "No token" });
+    const user = await User.findById(decoded.id);
+
+    if (!user || user.refreshToken !== refreshToken) {
+      return res.status(403).json({ message: "Invalid refresh token" });
     }
 
-    const user = await User.findOne({ refreshToken });
+    const newAccessToken = generateAccessToken(user);
 
-    if (!user) {
-      return res.status(403).json({ message: "Invalid token" });
-    }
-
-    jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SECRET,
-      (err, decoded) => {
-        if (err) {
-          return res.status(403).json({ message: "Token expired" });
-        }
-
-        const accessToken = generateAccessToken(user);
-
-        res.json({ accessToken });
-      }
-    );
+    res.json({
+      accessToken: newAccessToken
+    });
   } catch (err) {
     next(err);
   }
@@ -103,7 +97,11 @@ export const getCurrentUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
 
-    res.json(user);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ user });
   } catch (error) {
     next(error);
   }
@@ -138,9 +136,10 @@ export const googleSignin = async (req, res, next) => {
     }
 
     // generate your own JWT/session
-    const token = generateJWT(user);
+    const accessToken = generateAccessToken(user);
+    const refreshToken = generateRefreshToken(user);
 
-    res.json({ token, user });
+    res.json({ accessToken, refreshToken, user });
   } catch (error) {
     console.error("GOOGLE AUTH ERROR:", error);
     next(error);
