@@ -2,7 +2,7 @@ import { Food } from "../models/food.model.js";
 
 export const getFoods = async (req, res, next) => {
   try {
-    const { search } = req.query;
+    const { search, category } = req.query;
 
     let filter = {};
 
@@ -10,6 +10,12 @@ export const getFoods = async (req, res, next) => {
       filter.name = {
         $regex: search,
         $options: "i"
+      };
+    }
+
+    if (category && category !== "all") {
+      filter.categories = {
+        $in: [category]
       };
     }
 
