@@ -6,13 +6,16 @@ import { generateAccessToken, generateRefreshToken } from "../utils/token.js";
 
 export const register = async (req, res, next) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, email, name, avatar } = req.body;
 
     const hashed = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       username,
-      password: hashed
+      password: hashed,
+      email,
+      name,
+      avatar: avatar ?? null
     });
 
     res.status(201).json(user);
@@ -131,7 +134,7 @@ export const googleSignin = async (req, res, next) => {
         googleId: sub,
         email,
         name,
-        avatar: picture
+        avatar: picture ?? null
       });
     }
 
